@@ -10,6 +10,7 @@ calc AS (
         c.craftsman_birthday,
         c.craftsman_email,
 
+        
         -- Сумма денег мастера = 90% от суммы цен
         0.9 * SUM(dp.product_price)::numeric(15,2) AS craftsman_money,
         -- Сумма денег платформы = 10%
