@@ -1,4 +1,4 @@
--- Загрузка измерения d_customers
+-- Загрузка d_customers
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -27,7 +27,7 @@ WHERE
     )
 ;
 
--- Аналогично данные из source2
+-- Данные из source2
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -56,7 +56,7 @@ WHERE
     )
 ;
 
--- Аналогично данные из source3
+-- Данные из source3
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -76,9 +76,7 @@ SELECT DISTINCT
     CURRENT_TIMESTAMP
 FROM source3.craft_market_customers s
 JOIN last_load ll ON 1=1
--- В source3 нет полей order_created_date / order_completion_date, 
--- поэтому проверяем, например, дату самой записи или берём всё (демо вариант).
--- Если у source3 есть дата изменения, то используем её вместо ... >= ll.last_load_date.
+
 WHERE NOT EXISTS (
         SELECT 1 
         FROM dwh.d_customers d 
@@ -87,7 +85,7 @@ WHERE NOT EXISTS (
 ;
 
 
--- Загрузка измерения d_products
+-- Загрузка d_products
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -117,8 +115,7 @@ WHERE
     )
 ;
 
--- Аналогично – можно собрать из source2, source3 (у source2.craft_market_masters_products и source3.craft_market_orders есть поля продукта)
--- Пример, из source2:
+-- source2:
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -147,7 +144,7 @@ WHERE NOT EXISTS (
 );
 
 
--- Загрузка измерения d_craftsmans
+-- Загрузка d_craftsmans
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -176,7 +173,7 @@ WHERE
     )
 ;
 
--- Аналогично – source2
+-- source2
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -203,7 +200,7 @@ WHERE NOT EXISTS (
 )
 ;
 
--- Аналогично – source3
+-- source3
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
@@ -231,13 +228,13 @@ WHERE NOT EXISTS (
 ;
 
 
--- Загрузка фактов (f_orders)
+-- f_orders
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart
 )
 INSERT INTO dwh.f_orders (
-    -- суррогатный PK (order_id) генерируется автоматически
+    -- order_id генерируется автоматически
     product_id,
     craftsman_id,
     customer_id,
@@ -269,7 +266,6 @@ JOIN dwh.d_customers dcu
   ON dcu.customer_email = s.customer_email
 WHERE
     (s.order_created_date >= ll.last_load_date OR s.order_completion_date >= ll.last_load_date)
-    -- Исключаем уже загруженные заказы (или делаем MERGE)
     AND NOT EXISTS (
         SELECT 1 
         FROM dwh.f_orders fo
@@ -280,7 +276,7 @@ WHERE
     )
 ;
 
--- Аналогично из source2
+-- source2
 WITH last_load AS (
     SELECT COALESCE(MAX(load_dttm)::date, DATE '1900-01-01') AS last_load_date
     FROM dwh.load_dates_craftsman_report_datamart

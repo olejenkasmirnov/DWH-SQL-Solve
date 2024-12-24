@@ -1,4 +1,4 @@
--- Сколько строк в каждом справочнике (d_customers, d_products, d_craftsmans)
+-- Количество строк в каждом справочнике
 SELECT COUNT(*) AS cnt_customers FROM dwh.d_customers;
 SELECT COUNT(*) AS cnt_products  FROM dwh.d_products;
 SELECT COUNT(*) AS cnt_craftsmans FROM dwh.d_craftsmans;
@@ -7,7 +7,7 @@ SELECT * FROM dwh.d_customers ORDER BY customer_id DESC LIMIT 5;
 SELECT * FROM dwh.d_products ORDER BY product_id DESC LIMIT 5;
 SELECT * FROM dwh.d_craftsmans ORDER BY craftsman_id DESC LIMIT 5;
 
--- Посчитать общее число записей в таблице фактов
+-- Общее число записей в таблице фактов
 SELECT COUNT(*) AS cnt_orders FROM dwh.f_orders;
 
 SELECT * 

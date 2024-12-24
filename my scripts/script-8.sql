@@ -41,20 +41,13 @@ calc AS (
         SUM(CASE WHEN fo.order_status = 'done'        THEN 1 ELSE 0 END) AS count_order_done,
         SUM(CASE WHEN fo.order_status <> 'done'       THEN 1 ELSE 0 END) AS count_order_not_done,
 
-        -- Формируем период в формате ГГГГ-ММ
+        -- Период в формате ГГГГ-ММ
         TO_CHAR(DATE_TRUNC('month', fo.order_created_date), 'YYYY-MM') AS report_period
 
     FROM dwh.f_orders fo
     JOIN dwh.d_craftsmans c  ON c.craftsman_id   = fo.craftsman_id
     JOIN dwh.d_products dp   ON dp.product_id    = fo.product_id
     JOIN dwh.d_customers dcu ON dcu.customer_id  = fo.customer_id
-
-    -- Пример: берём только заказы текущего месяца
---    WHERE fo.order_created_date >= DATE_TRUNC('month', CURRENT_DATE)
---      AND fo.order_created_date <  (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')
-
-    -- Или, если нужно инкремент от last_load_date, добавляем:
-    -- AND fo.order_created_date >= last_load.last_load_date
 
     GROUP BY
         c.craftsman_id,   
